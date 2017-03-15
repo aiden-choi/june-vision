@@ -27,17 +27,19 @@ class llf(object):
         # construct pixel intensity matrix
         i_mtx = np.tile(np.array(img, dtype=np.double), (nbin, 1, 1))
 
-        i_mtx = k * i_mtx
+        i_mtx *= k
         i_mtx[i_mtx < k] = k
 
         # compute illumination invariant features
         x = -(b_mtx - bp_mtx) ** 2 / (2 * i_mtx ** 2)
         e_mtx = np.exp(x)
-        e_mtx = e_mtx.T
+        temp_e_mtx = np.empty((e_mtx.shape[1], e_mtx.shape[2], e_mtx.shape[0]))
+
         for i in range(nbin):
-            e_mtx[:,:,i] = e_mtx[:,:,i].T
+            temp_e_mtx[:, :, i] = e_mtx[i, :, :]
+        e_mtx = temp_e_mtx
 
         lp_mtx = e_mtx * hist_mtx
-        feature_img = np.sum(lp_mtx,axis=2)
+        feature_img = np.sum(lp_mtx, axis=2)
 
         return feature_img
